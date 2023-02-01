@@ -38,12 +38,11 @@ int main(int argc, char **argv)
 		input.seekg(0, std::ios::end);
 
 		int32_t size = input.tellg();
-		int32_t tmpSize = size - 1;
+		int32_t tmpSize;
 
 		input.seekg(0, std::ios::beg);
 
 		char *bufIn = new char[size];
-		char *data = new char[size];
 
 		input.read(bufIn, size);
 		input.close();
@@ -65,28 +64,41 @@ int main(int argc, char **argv)
 			continue;
 		}
 
-		output.write(bufIn, 1);
-
-		std::copy(bufIn + 1, bufIn + size, bufIn);
-
 		if (decrypt)
 		{
-			DecodeBuffer(bufIn, data, tmpSize);
+			tmpSize = size - 1;
+			int nullCount = 16 - (tmpSize % 16);
+			tmpSize += nullCount;
+
+			char *bufInToDecrypt = new char[tmpSize];
+			std::copy(bufIn + 1, bufIn + size, bufInToDecrypt);
+
+			DecodeBuffer(bufInToDecrypt, bufInToDecrypt, tmpSize);
+
+			int32_t outputSize = tmpSize - nullCount - bufIn[0];
+			output.write(bufInToDecrypt, outputSize);
+
+			delete[] bufInToDecrypt;
 		}
 		else if (encrypt)
 		{
-			EncodeBuffer(bufIn, data, tmpSize);
-		}
+			int nullCount = 16 - (size % 16);
+			tmpSize = size + nullCount;
 
-		while (data[tmpSize - 1] == '\0')
-		{
-			tmpSize--;
-		}
+			int32_t outputSize = tmpSize + 1;
 
-		output.write(data, tmpSize);
+			char *bufInToEncrypt = new char[outputSize];
+			std::copy(bufIn, bufIn + size, bufInToEncrypt);
+
+			EncodeBuffer(bufInToEncrypt + 1, bufInToEncrypt + 1, tmpSize);
+
+			bufInToEncrypt[0] = nullCount;
+			output.write(bufInToEncrypt, outputSize);
+
+			delete[] bufInToEncrypt;
+		}
 
 		delete[] bufIn;
-		delete[] data;
 		output.close();
 	}
 	if (argc == 1)
