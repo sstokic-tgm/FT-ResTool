@@ -78,6 +78,11 @@ int main(int argc, char **argv)
 			EncodeBuffer(bufIn, data, tmpSize);
 		}
 
+		while (data[tmpSize - 1] == '\0')
+		{
+			tmpSize--;
+		}
+
 		output.write(data, tmpSize);
 
 		delete[] bufIn;
