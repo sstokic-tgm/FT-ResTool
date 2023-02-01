@@ -12,12 +12,10 @@ void EncodeBuffer(char *buffer, char *output, unsigned int size);
 int main(int argc, char **argv)
 {
 
-	if (argc == 2)
+	auto start = std::chrono::high_resolution_clock::now();
+	for (int i = 1; i < argc; i++)
 	{
-
-		auto start = std::chrono::high_resolution_clock::now();
-
-		std::string file = argv[1];
+		std::string file = argv[i];
 		std::string ext = file.substr(file.find_last_of(".") + 1);
 
 		bool decrypt = ext.compare("set") == 0;
@@ -25,18 +23,16 @@ int main(int argc, char **argv)
 
 		if (!decrypt && !encrypt)
 		{
-			std::cout << "File is not supported!" << std::endl
+			std::cout << "File " << file << " is not supported!" << std::endl
 					  << "Only .set and .txt files!";
-			std::cin.get();
-			std::exit(1);
+			continue;
 		}
 
 		std::ifstream input(file, std::ios::in | std::ios::binary);
 		if (!input.is_open())
 		{
-			std::cout << "Failed opening input file\n";
-			std::cin.get();
-			std::exit(1);
+			std::cout << "Failed opening input file " << file << "\n";
+			continue;
 		}
 
 		input.seekg(0, std::ios::end);
@@ -65,9 +61,8 @@ int main(int argc, char **argv)
 		std::ofstream output(outName.str(), std::ios::out | std::ios::binary);
 		if (!output.is_open())
 		{
-			std::cout << "Failed opening output file\n";
-			std::cin.get();
-			std::exit(1);
+			std::cout << "Failed opening output file" << outName.str() << "\n";
+			continue;
 		}
 
 		output.write(bufIn, 1);
@@ -88,15 +83,18 @@ int main(int argc, char **argv)
 		delete[] bufIn;
 		delete[] data;
 		output.close();
-
-		auto end = std::chrono::high_resolution_clock::now();
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-
-		std::cout << "Finished in " << duration.count() << "ms\n";
-		std::cout << "Press any key to close\n";
-		std::cin.get();
+	}
+	if (argc == 1)
+	{
+		std::cout << "Please specify a file!\n";
 	}
 
+	auto end = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+	std::cout << "Finished in " << duration.count() << "ms\n";
+	std::cout << "Press any key to close\n";
+	std::cin.get();
 	return 0;
 }
 
