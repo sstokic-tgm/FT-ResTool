@@ -6,12 +6,14 @@
 #include <chrono>
 #include "Rijndael.h"
 
-void DecodeBuffer(char* buffer, char* output, unsigned int size);
-void EncodeBuffer(char* buffer, char* output, unsigned int size);
+void DecodeBuffer(char *buffer, char *output, unsigned int size);
+void EncodeBuffer(char *buffer, char *output, unsigned int size);
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv)
+{
 
-	if (argc == 2) {
+	if (argc == 2)
+	{
 
 		auto start = std::chrono::high_resolution_clock::now();
 
@@ -21,14 +23,17 @@ int main(int argc, char** argv) {
 		bool decrypt = ext.compare("set") == 0;
 		bool encrypt = ext.compare("txt") == 0;
 
-		if (!decrypt && !encrypt) {
-			std::cout << "File is not supported!" << std::endl << "Only .set and .txt files!";
+		if (!decrypt && !encrypt)
+		{
+			std::cout << "File is not supported!" << std::endl
+					  << "Only .set and .txt files!";
 			std::cin.get();
 			std::exit(1);
 		}
 
 		std::ifstream input(file, std::ios::in | std::ios::binary);
-		if (!input.is_open()) {
+		if (!input.is_open())
+		{
 			std::cout << "Failed opening input file\n";
 			std::cin.get();
 			std::exit(1);
@@ -48,15 +53,18 @@ int main(int argc, char** argv) {
 		input.close();
 
 		std::ostringstream outName;
-		if (decrypt) {
+		if (decrypt)
+		{
 			outName << file << ".txt";
 		}
-		else if (encrypt) {
+		else if (encrypt)
+		{
 			outName << file << ".set";
 		}
 
 		std::ofstream output(outName.str(), std::ios::out | std::ios::binary);
-		if (!output.is_open()) {
+		if (!output.is_open())
+		{
 			std::cout << "Failed opening output file\n";
 			std::cin.get();
 			std::exit(1);
@@ -66,10 +74,12 @@ int main(int argc, char** argv) {
 
 		std::copy(bufIn + 1, bufIn + size, bufIn);
 
-		if (decrypt) {
+		if (decrypt)
+		{
 			DecodeBuffer(bufIn, data, tmpSize);
 		}
-		else if (encrypt) {
+		else if (encrypt)
+		{
 			EncodeBuffer(bufIn, data, tmpSize);
 		}
 
@@ -90,7 +100,8 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void DecodeBuffer(char* buffer, char* output, unsigned int size) {
+void DecodeBuffer(char *buffer, char *output, unsigned int size)
+{
 
 	CRijndael rijndael;
 	rijndael.MakeKey("TIMOTEI_ZION", CRijndael::sm_chain0, 16, 16);
@@ -98,7 +109,8 @@ void DecodeBuffer(char* buffer, char* output, unsigned int size) {
 	rijndael.ResetChain();
 }
 
-void EncodeBuffer(char* buffer, char* output, unsigned int size) {
+void EncodeBuffer(char *buffer, char *output, unsigned int size)
+{
 
 	CRijndael rijndael;
 	rijndael.MakeKey("TIMOTEI_ZION", CRijndael::sm_chain0, 16, 16);
